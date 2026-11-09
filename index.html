@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fast Auto-Calc Professional</title>
+    <style>
+        :root {
+            /* Professional Light Theme Colors */
+            --bg-color: #ffffff;
+            --display-bg: #ffffff;
+            --keypad-bg: #ffffff;
+            
+            --text-main: #1e293b; /* Softer display text color */
+            --text-muted: #475569;
+            
+            --btn-num-bg: #f1f5f9;
+            --btn-num-hover: #e2e8f0;
+            --btn-num-text: #1e293b;
+            
+            --btn-op-bg: #eff6ff;
+            --btn-op-hover: #dbeafe;
+            --btn-op-text: #2563eb;
+            
+            --btn-eq-bg: #2563eb;
+            --btn-eq-hover: #1d4ed8;
+            --btn-eq-text: #ffffff;
+            
+            --btn-clear-bg: #fef2f2;
+            --btn-clear-hover: #fee2e2;
+            --btn-clear-text: #e11d48;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation; /* Removes any browser touch delay */
+        }
+
+        body, html {
+            height: 100%;
+            height: 100dvh; 
+            background-color: var(--bg-color);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Display Area */
+        .display-area {
+            flex: 1;
+            background-color: var(--display-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: flex-end;
+            padding: 30px 24px;
+            width: 100%;
+        }
+
+        .previous {
+            font-size: clamp(1.4rem, 6vw, 1.8rem);
+            color: var(--text-muted);
+            min-height: 2.2rem;
+            margin-bottom: 4px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .current {
+            font-size: clamp(2.8rem, 13vw, 4.5rem);
+            color: var(--text-main);
+            font-weight: 400; /* Lighter weight for the main display */
+            line-height: 1.1;
+            word-wrap: break-word;
+            word-break: break-all;
+            text-align: right;
+            width: 100%;
+            letter-spacing: -1px;
+        }
+
+        /* Keypad Area */
+        .keypad {
+            background-color: var(--keypad-bg);
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            padding: 16px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+            width: 100%;
+            border-top: 1px solid #f8fafc;
+        }
+
+        .btn {
+            border: 1px solid #e2e8f0; /* Very light border */
+            border-radius: 24px;
+            font-size: 1.85rem;
+            font-weight: 400; /* Lighter button text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            /* Ultra-fast 0.05s transitions for high Hz feel */
+            transition: transform 0.05s cubic-bezier(0.2, 0, 0, 1), background-color 0.05s ease;
+            aspect-ratio: 1 / 1; 
+            background-color: var(--btn-num-bg);
+            color: var(--btn-num-text);
+        }
+
+        .btn:active {
+            transform: scale(0.90); /* Snappy scale down on touch */
+        }
+
+        /* Operator Buttons */
+        .operator {
+            background-color: var(--btn-op-bg);
+            border-color: #dbeafe;
+            color: var(--btn-op-text);
+            font-size: 2.2rem;
+            font-weight: 400;
+        }
+
+        /* Action Buttons (AC, DEL) */
+        .action {
+            background-color: var(--btn-clear-bg);
+            border-color: #fee2e2;
+            color: var(--btn-clear-text);
+            font-size: 1.65rem;
+            font-weight: 400;
+        }
+
+        /* Equals Button */
+        .equal {
+            background-color: var(--btn-eq-bg);
+            border-color: #1d4ed8;
+            color: var(--btn-eq-text);
+            font-size: 2.2rem;
+        }
+
+        .percent {
+            font-size: 1.7rem;
+            font-weight: 400;
+        }
+
+        .zero {
+            border-radius: 24px;
+        }
+
+        /* Hover only on devices with a real mouse/pointer.
+           On touch screens hover "sticks" after a tap, so it is disabled there. */
+        @media (hover: hover) and (pointer: fine) {
+            .btn:hover { background-color: var(--btn-num-hover); }
+            .operator:hover { background-color: var(--btn-op-hover); }
+            .action:hover { background-color: var(--btn-clear-hover); }
+            .equal:hover { background-color: var(--btn-eq-hover); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="display-area">
+        <div class="previous" id="previous"></div>
+        <div class="current" id="display">0</div>
+    </div>
+    
+    <div class="keypad">
+        <button class="btn action" data-action="clear">AC</button>
+        <button class="btn operator percent" data-action="percent">%</button>
+        <button class="btn operator" data-action="op" data-val="/">&divide;</button>
+        <button class="btn operator" data-action="op" data-val="*">&times;</button>
+
+        <button class="btn" data-action="num" data-val="7">7</button>
+        <button class="btn" data-action="num" data-val="8">8</button>
+        <button class="btn" data-action="num" data-val="9">9</button>
+        <button class="btn operator" data-action="op" data-val="-">&minus;</button>
+
+        <button class="btn" data-action="num" data-val="4">4</button>
+        <button class="btn" data-action="num" data-val="5">5</button>
+        <button class="btn" data-action="num" data-val="6">6</button>
+        <button class="btn operator" data-action="op" data-val="+">+</button>
+
+        <button class="btn" data-action="num" data-val="1">1</button>
+        <button class="btn" data-action="num" data-val="2">2</button>
+        <button class="btn" data-action="num" data-val="3">3</button>
+        <button class="btn equal" data-action="eq" style="grid-row: span 2; aspect-ratio: auto;">=</button>
+
+        <button class="btn zero" data-action="num" data-val="0">0</button>
+        <button class="btn" data-action="num" data-val=".">.</button>
+        <button class="btn" data-action="del" aria-label="Delete">
+            <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1z"/><path d="M13 9.5l5 5M18 9.5l-5 5"/></svg>
+        </button>
+    </div>
+
+    <script>
+        // State variables for auto-calculation
+        let num1 = '0';
+        let operator = null;
+        let num2 = '';
+        let isFinished = false;
+        let num2Pct = false; // true when % was applied to the second number
+        let num2Raw = '';    // what the person typed before pressing %
+
+        const display = document.getElementById('display');
+        const previousDisplay = document.getElementById('previous');
+
+        // Formats numbers with commas (e.g., 1,000,000) perfectly
+        function formatNumber(numberStr) {
+            if (!numberStr) return '';
+            if (numberStr === 'Error') return numberStr;
+            
+            const isNegative = numberStr.startsWith('-');
+            const str = isNegative ? numberStr.slice(1) : numberStr;
+            
+            const parts = str.split('.');
+            const integerDigits = parseFloat(parts[0]);
+            let integerDisplay = isNaN(integerDigits) ? '0' : integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
+            
+            if (parts.length > 1) {
+                return (isNegative ? '-' : '') + integerDisplay + '.' + parts[1];
+            } else {
+                return (isNegative ? '-' : '') + integerDisplay;
+            }
+        }
+
+        // Live calculates without needing to press Equal
+        function updateDisplay() {
+            let currentResult = num1;
+            let previousText = '';
+
+            if (operator) {
+                let opSymbol = operator === '*' ? '×' : operator === '/' ? '÷' : operator === '-' ? '−' : '+';
+                
+                if (num2 !== '') {
+                    previousText = `${formatNumber(num1)} ${opSymbol} ${num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2)}`;
+                    currentResult = calculate(num1, operator, num2).toString();
+                } else {
+                    previousText = `${formatNumber(num1)} ${opSymbol}`;
+                    currentResult = num1;
+                }
+            } else {
+                currentResult = num1;
+            }
+
+            previousDisplay.innerText = previousText;
+            display.innerText = formatNumber(currentResult);
+        }
+
+        function calculate(n1, op, n2) {
+            const prev = parseFloat(n1);
+            const current = parseFloat(n2);
+            if (isNaN(prev) || isNaN(current)) return 0;
+            
+            let result;
+            switch (op) {
+                case '+': result = prev + current; break;
+                case '-': result = prev - current; break;
+                case '*': result = prev * current; break;
+                case '/': result = current === 0 ? "Error" : prev / current; break;
+            }
+            if (result !== "Error") {
+                result = Math.round((result + Number.EPSILON) * 100) / 100; // max 2 decimals 
+            }
+            return result;
+        }
+
+        function handleNumber(num) {
+            if (num1 === 'Error') handleClear();
+            
+            if (isFinished) {
+                num1 = num === '.' ? '0.' : num;
+                isFinished = false;
+                updateDisplay();
+                return;
+            }
+
+            if (operator === null) {
+                if (num === '.' && num1.includes('.')) return;
+                if (num1.replace(/[^0-9]/g, '').length >= 12 && num !== '.') return;
+                if (num1 === '0' && num !== '.') num1 = num;
+                else num1 += num;
+            } else {
+                if (num2Pct) { num2 = ''; num2Pct = false; }
+                if (num === '.' && num2.includes('.')) return;
+                if (num2.replace(/[^0-9]/g, '').length >= 12 && num !== '.') return;
+                if (num2 === '0' && num !== '.') num2 = num;
+                else num2 += num;
+            }
+            updateDisplay();
+        }
+
+        function handleOperator(op) {
+            if (num1 === 'Error') handleClear();
+
+            if (operator !== null && num2 !== '') {
+                // Instantly commit the previous equation as the new base number
+                num1 = calculate(num1, operator, num2).toString();
+            }
+            operator = op;
+            num2Pct = false;
+            num2 = '';
+            isFinished = false;
+            updateDisplay();
+        }
+
+        function handleEqual() {
+            if (operator === null || num2 === '') return;
+            num1 = calculate(num1, operator, num2).toString();
+            operator = null;
+            num2 = '';
+            isFinished = true;
+            num2Pct = false;
+            const oldExpr = previousDisplay.innerText;
+            const oldRect = previousDisplay.getBoundingClientRect();
+            updateDisplay();
+            playEqualAnimation(oldExpr, oldRect);
+        }
+
+        function playEqualAnimation(oldExpr, rect) {
+            if (!display.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            const ease = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+
+            // Old expression floats up and fades out
+            if (oldExpr) {
+                const ghost = previousDisplay.cloneNode(false);
+                ghost.removeAttribute('id');
+                ghost.textContent = oldExpr;
+                ghost.style.cssText = 'position:fixed;margin:0;pointer-events:none;top:' + rect.top + 'px;right:' + (document.documentElement.clientWidth - rect.right) + 'px;';
+                document.body.appendChild(ghost);
+                ghost.animate(
+                    [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-32px)', opacity: 0 }],
+                    { duration: 320, easing: ease, fill: 'forwards' }
+                ).onfinish = () => ghost.remove();
+            }
+
+            // Result rises up smoothly into place
+            display.animate(
+                [{ transform: 'translateY(26px)', opacity: 0.25 }, { transform: 'translateY(0)', opacity: 1 }],
+                { duration: 320, easing: ease }
+            );
+        }
+
+        function handleClear() {
+            num2Pct = false;
+            num1 = '0';
+            operator = null;
+            num2 = '';
+            isFinished = false;
+            updateDisplay();
+        }
+
+        function handlePercent() {
+            if (num1 === 'Error') handleClear();
+            const round = v => (Math.round(v * 1e10) / 1e10).toString();
+
+            if (operator === null) {
+                const v = parseFloat(num1);
+                if (isNaN(v)) return;
+                num1 = round(v / 100);
+            } else if (num2 !== '') {
+                const base = parseFloat(num1);
+                const val = parseFloat(num2);
+                if (isNaN(base) || isNaN(val)) return;
+                // + and -: percent of the first number (200 + 10% = 200 + 20). × and ÷: simply value / 100
+                if (num2Pct) return; // already a percentage
+                num2Raw = num2;
+                num2Pct = true;
+                num2 = (operator === '+' || operator === '-') ? round(base * val / 100) : round(val / 100);
+            } else {
+                return;
+            }
+            updateDisplay();
+        }
+
+        function handleDelete() {
+            if (isFinished || num1 === "Error") {
+                handleClear();
+                return;
+            }
+            if (operator === null) {
+                num1 = num1.slice(0, -1);
+                if (num1 === '' || num1 === '-') num1 = '0';
+            } else if (num2 === '') {
+                operator = null; // Removing operator
+            } else {
+                if (num2Pct) { num2 = num2Raw; num2Pct = false; } // first delete only removes the %
+                else num2 = num2.slice(0, -1);
+            }
+            updateDisplay();
+        }
+
+        // Extremely fast Pointer Down events for High Hz responsiveness
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('pointerdown', (e) => {
+                // Haptic Feedback for Native Feel (Android)
+                if (navigator.vibrate) navigator.vibrate(5);
+                
+                const action = btn.getAttribute('data-action');
+                const val = btn.getAttribute('data-val');
+                
+                if(action === 'num') handleNumber(val);
+                if(action === 'op') handleOperator(val);
+                if(action === 'eq') handleEqual();
+                if(action === 'clear') handleClear();
+                if(action === 'del') handleDelete();
+                if(action === 'percent') handlePercent();
+            });
+
+            // Prevent double zooming/context menu issues
+            btn.addEventListener('contextmenu', e => e.preventDefault());
+        });
+    </script>
+</body>
+</html>
