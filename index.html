@@ -6,82 +6,86 @@
     <title>Fast Auto-Calc Professional</title>
     <style>
         :root {
-            /* Professional Light Theme Colors */
-            --bg-color: #ffffff;
-            --display-bg: #ffffff;
-            --keypad-bg: #ffffff;
-            
-            --text-main: #1e293b; /* Softer display text color */
-            --text-muted: #475569;
-            
-            --btn-num-bg: #f1f5f9;
-            --btn-num-hover: #e2e8f0;
-            --btn-num-text: #1e293b;
-            
-            --btn-op-bg: #eff6ff;
-            --btn-op-hover: #dbeafe;
-            --btn-op-text: #2563eb;
-            
-            --btn-eq-bg: #2563eb;
-            --btn-eq-hover: #1d4ed8;
+            /* Premium Soft Flutter / Material You Theme */
+            --bg-color: #f4f6fb;
+            --display-bg: transparent;
+            --keypad-bg: transparent;
+
+            --text-main: #1b2236;
+            --text-muted: #8590a6;
+
+            --btn-num-bg: #ffffff;
+            --btn-num-hover: #f3f5fb;
+            --btn-num-text: #1b2236;
+
+            --btn-op-bg: #e3f0ff;
+            --btn-op-hover: #d2e6ff;
+            --btn-op-text: #1976d2;
+
+            --btn-eq-bg: linear-gradient(145deg, #2196f3 0%, #1565c0 100%);
+            --btn-eq-hover: linear-gradient(145deg, #1e88e5 0%, #0d5bb5 100%);
             --btn-eq-text: #ffffff;
-            
-            --btn-clear-bg: #fef2f2;
-            --btn-clear-hover: #fee2e2;
-            --btn-clear-text: #e11d48;
+
+            --btn-clear-bg: #dff7f3;
+            --btn-clear-hover: #cdf0ea;
+            --btn-clear-text: #0f9d8a;
+
+            --shadow-soft: 0 2px 4px rgba(30, 41, 90, 0.05), 0 8px 18px rgba(30, 41, 90, 0.07);
+            --shadow-pressed: 0 1px 2px rgba(30, 41, 90, 0.08);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, sans-serif;
+            font-family: "Google Sans", "Product Sans", "Poppins", Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             -webkit-user-select: none;
-            touch-action: manipulation; /* Removes any browser touch delay */
+            touch-action: manipulation;
         }
 
         body, html {
             height: 100%;
-            height: 100dvh; 
-            background-color: var(--bg-color);
+            height: 100dvh;
+            background: var(--bg-color);
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* Display Area */
+        /* Display Area - soft elevated card */
         .display-area {
             flex: 1;
-            background-color: var(--display-bg);
+            background: var(--display-bg);
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
             align-items: flex-end;
-            padding: 30px 24px;
+            padding: 30px 28px 28px;
+            padding-top: calc(30px + env(safe-area-inset-top));
             width: 100%;
         }
 
         .previous {
-            font-size: clamp(1.4rem, 6vw, 1.8rem);
+            font-size: clamp(1.3rem, 5.5vw, 1.7rem);
             color: var(--text-muted);
             min-height: 2.2rem;
-            margin-bottom: 4px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            font-weight: 400;
+            letter-spacing: 0.4px;
         }
 
         .current {
             font-size: clamp(2.8rem, 13vw, 4.5rem);
             color: var(--text-main);
-            font-weight: 400; /* Lighter weight for the main display */
+            font-weight: 500;
             line-height: 1.1;
             word-wrap: break-word;
             word-break: break-all;
             text-align: right;
             width: 100%;
-            letter-spacing: -1px;
+            letter-spacing: -1.5px;
         }
 
         /* Keypad Area */
@@ -89,74 +93,75 @@
             background-color: var(--keypad-bg);
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
-            padding: 16px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+            gap: 14px;
+            padding: 22px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
             width: 100%;
-            border-top: 1px solid #f8fafc;
         }
 
         .btn {
-            border: 1px solid #e2e8f0; /* Very light border */
-            border-radius: 24px;
-            font-size: 1.85rem;
-            font-weight: 400; /* Lighter button text */
+            border: none;
+            border-radius: 50%;
+            font-size: 1.8rem;
+            font-weight: 400;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            /* Ultra-fast 0.05s transitions for high Hz feel */
-            transition: transform 0.05s cubic-bezier(0.2, 0, 0, 1), background-color 0.05s ease;
-            aspect-ratio: 1 / 1; 
+            transition: transform 0.08s cubic-bezier(0.2, 0, 0, 1), background-color 0.08s ease, box-shadow 0.08s ease;
+            aspect-ratio: 1 / 1;
             background-color: var(--btn-num-bg);
             color: var(--btn-num-text);
+            box-shadow: var(--shadow-soft);
         }
 
         .btn:active {
-            transform: scale(0.90); /* Snappy scale down on touch */
+            transform: scale(0.92);
+            box-shadow: var(--shadow-pressed);
         }
 
         /* Operator Buttons */
         .operator {
             background-color: var(--btn-op-bg);
-            border-color: #dbeafe;
             color: var(--btn-op-text);
-            font-size: 2.2rem;
-            font-weight: 400;
+            font-size: 2.1rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.08), 0 8px 18px rgba(25, 118, 210, 0.10);
         }
 
         /* Action Buttons (AC, DEL) */
         .action {
             background-color: var(--btn-clear-bg);
-            border-color: #fee2e2;
             color: var(--btn-clear-text);
-            font-size: 1.65rem;
-            font-weight: 400;
+            font-size: 1.6rem;
+            font-weight: 500;
+            box-shadow: 0 2px 4px rgba(15, 157, 138, 0.08), 0 8px 18px rgba(15, 157, 138, 0.10);
         }
 
         /* Equals Button */
         .equal {
-            background-color: var(--btn-eq-bg);
-            border-color: #1d4ed8;
+            background: var(--btn-eq-bg);
             color: var(--btn-eq-text);
-            font-size: 2.2rem;
+            font-size: 2.3rem;
+            font-weight: 500;
+            border-radius: 40px;
+            box-shadow: 0 6px 12px rgba(25, 118, 210, 0.30), 0 14px 28px rgba(25, 118, 210, 0.25);
         }
 
         .percent {
             font-size: 1.7rem;
-            font-weight: 400;
+            font-weight: 500;
         }
 
         .zero {
-            border-radius: 24px;
+            border-radius: 50%;
         }
 
-        /* Hover only on devices with a real mouse/pointer.
-           On touch screens hover "sticks" after a tap, so it is disabled there. */
+        /* Hover only on real pointer devices */
         @media (hover: hover) and (pointer: fine) {
             .btn:hover { background-color: var(--btn-num-hover); }
             .operator:hover { background-color: var(--btn-op-hover); }
             .action:hover { background-color: var(--btn-clear-hover); }
-            .equal:hover { background-color: var(--btn-eq-hover); }
+            .equal:hover { background: var(--btn-eq-hover); }
         }
     </style>
 </head>
@@ -171,12 +176,12 @@
         <button class="btn action" data-action="clear">AC</button>
         <button class="btn operator percent" data-action="percent">%</button>
         <button class="btn operator" data-action="op" data-val="/">&divide;</button>
-        <button class="btn operator" data-action="op" data-val="*">&times;</button>
+        <button class="btn operator" data-action="op" data-val="-">&minus;</button>
 
         <button class="btn" data-action="num" data-val="7">7</button>
         <button class="btn" data-action="num" data-val="8">8</button>
         <button class="btn" data-action="num" data-val="9">9</button>
-        <button class="btn operator" data-action="op" data-val="-">&minus;</button>
+        <button class="btn operator" data-action="op" data-val="*">&times;</button>
 
         <button class="btn" data-action="num" data-val="4">4</button>
         <button class="btn" data-action="num" data-val="5">5</button>
