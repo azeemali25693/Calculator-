@@ -135,7 +135,7 @@
             box-shadow: 0 1px 2px rgba(25, 118, 210, 0.20), 0 1px 3px 1px rgba(25, 118, 210, 0.10);
         }
 
-        /* % and รท slightly lighter blue */
+        /* % and divide slightly lighter blue */
         .operator[data-action="percent"],
         .operator[data-val="/"] {
             background-color: #dbe9fb;
@@ -251,7 +251,7 @@
         <div class="previous" id="previous"></div>
         <div class="current" id="display">0</div>
     </div>
-    
+
     <div class="keypad">
         <button class="btn action" data-action="clear">AC</button>
         <button class="btn operator percent" data-action="percent">%</button>
@@ -281,11 +281,11 @@
     </div>
 
     <script>
-        // Loader: spinner tab tak dikhega jab tak poora calculator load na ho jaye
+        // Loader: spinner stays until the whole calculator has loaded
         (function () {
             const loader = document.getElementById('loader');
-            const MIN_SHOW = 400;   // spinner kam se kam itne ms dikhe (flash na ho)
-            const MAX_WAIT = 6000;  // safety: itne ms ke baad zabardasti hata do
+            const MIN_SHOW = 400;   // show spinner for at least this many ms (avoids flash)
+            const MAX_WAIT = 6000;  // safety: force-hide after this many ms
             const startTime = Date.now();
             let done = false;
 
@@ -322,18 +322,26 @@
         const previousDisplay = document.getElementById('previous');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Formats numbers with commas (e.g., 1,000,000) perfectly
+        // Operator symbols as Unicode escapes (safe in any file encoding)
+        const OP_SYMBOLS = {
+            '*': '\u00d7', // multiplication sign
+            '/': '\u00f7', // division sign
+            '-': '\u2212', // minus sign
+            '+': '+'
+        };
+
+        // Formats numbers with commas (e.g., 1,000,000)
         function formatNumber(numberStr) {
             if (!numberStr) return '';
             if (numberStr === 'Error') return numberStr;
-            
+
             const isNegative = numberStr.startsWith('-');
             const str = isNegative ? numberStr.slice(1) : numberStr;
-            
+
             const parts = str.split('.');
             const integerDigits = parseFloat(parts[0]);
             let integerDisplay = isNaN(integerDigits) ? '0' : integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
-            
+
             if (parts.length > 1) {
                 return (isNegative ? '-' : '') + integerDisplay + '.' + parts[1];
             } else {
@@ -347,8 +355,8 @@
             let previousText = '';
 
             if (operator) {
-                let opSymbol = operator === '*' ? 'ร—' : operator === '/' ? 'รท' : operator === '-' ? 'โ’' : '+';
-                
+                const opSymbol = OP_SYMBOLS[operator] || '+';
+
                 if (num2 !== '') {
                     previousText = `${formatNumber(num1)} ${opSymbol} ${num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2)}`;
                     currentResult = calculate(num1, operator, num2).toString();
@@ -368,7 +376,7 @@
             const prev = parseFloat(n1);
             const current = parseFloat(n2);
             if (isNaN(prev) || isNaN(current)) return 0;
-            
+
             let result;
             switch (op) {
                 case '+': result = prev + current; break;
@@ -377,14 +385,14 @@
                 case '/': result = current === 0 ? "Error" : prev / current; break;
             }
             if (result !== "Error") {
-                result = Math.round((result + Number.EPSILON) * 100) / 100; // max 2 decimals 
+                result = Math.round((result + Number.EPSILON) * 100) / 100; // max 2 decimals
             }
             return result;
         }
 
         function handleNumber(num) {
             if (num1 === 'Error') handleClear();
-            
+
             if (isFinished) {
                 num1 = num === '.' ? '0.' : num;
                 isFinished = false;
@@ -479,7 +487,7 @@
                 const base = parseFloat(num1);
                 const val = parseFloat(num2);
                 if (isNaN(base) || isNaN(val)) return;
-                // + and -: percent of the first number (200 + 10% = 200 + 20). ร— and รท: simply value / 100
+                // + and -: percent of the first number (200 + 10% = 200 + 20). * and /: simply value / 100
                 if (num2Pct) return; // already a percentage
                 num2Raw = num2;
                 num2Pct = true;
@@ -533,10 +541,10 @@
                 // Haptic Feedback for Native Feel (Android)
                 if (navigator.vibrate) navigator.vibrate(5);
                 spawnRipple(btn, e);
-                
+
                 const action = btn.getAttribute('data-action');
                 const val = btn.getAttribute('data-val');
-                
+
                 if(action === 'num') handleNumber(val);
                 if(action === 'op') handleOperator(val);
                 if(action === 'eq') handleEqual();
