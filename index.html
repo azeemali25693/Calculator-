@@ -163,9 +163,58 @@
             .action:hover { background-color: var(--btn-clear-hover); }
             .equal:hover { background: var(--btn-eq-hover); }
         }
+
+        /* Loading Spinner - light gray, bold, bigger */
+        .loader {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--bg-color);
+            opacity: 1;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .loader.hide {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .spinner {
+            width: 72px;
+            height: 72px;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .spinner circle {
+            fill: none;
+            stroke-width: 7;
+            stroke-linecap: round;
+        }
+
+        .spinner .track { stroke: #e3e6ee; }
+        .spinner .arc {
+            stroke: #b4bac8;
+            stroke-dasharray: 70 200;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
+    <noscript><style>.loader { display: none; }</style></noscript>
 </head>
 <body>
+
+    <div class="loader" id="loader" role="status" aria-label="Loading">
+        <svg class="spinner" viewBox="0 0 50 50">
+            <circle class="track" cx="25" cy="25" r="20"></circle>
+            <circle class="arc" cx="25" cy="25" r="20"></circle>
+        </svg>
+    </div>
 
     <div class="display-area">
         <div class="previous" id="previous"></div>
@@ -201,6 +250,34 @@
     </div>
 
     <script>
+        // Loader: spinner tab tak dikhega jab tak poora calculator load na ho jaye
+        (function () {
+            const loader = document.getElementById('loader');
+            const MIN_SHOW = 400;   // spinner kam se kam itne ms dikhe (flash na ho)
+            const MAX_WAIT = 6000;  // safety: itne ms ke baad zabardasti hata do
+            const startTime = Date.now();
+            let done = false;
+
+            function hideLoader() {
+                if (done) return;
+                done = true;
+                const wait = Math.max(0, MIN_SHOW - (Date.now() - startTime));
+                setTimeout(() => {
+                    loader.classList.add('hide');
+                    setTimeout(() => loader.remove(), 400);
+                }, wait);
+            }
+
+            const pageLoaded = new Promise(res => {
+                if (document.readyState === 'complete') res();
+                else window.addEventListener('load', res, { once: true });
+            });
+            const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+
+            Promise.all([pageLoaded, fontsReady]).then(hideLoader, hideLoader);
+            setTimeout(hideLoader, MAX_WAIT);
+        })();
+
         // State variables for auto-calculation
         let num1 = '0';
         let operator = null;
