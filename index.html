@@ -3,42 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f8f9fc">
     <title>Fast Auto-Calc Professional</title>
     <style>
         :root {
             /* Premium Soft Flutter / Material You Theme */
-            --bg-color: #f4f6fb;
+            --bg-color: #f8f9fc;
             --display-bg: transparent;
             --keypad-bg: transparent;
 
             --text-main: #1b2236;
             --text-muted: #8590a6;
 
-            --btn-num-bg: #ffffff;
-            --btn-num-hover: #f3f5fb;
+            --btn-num-bg: #e9ecf3;
+            --btn-num-hover: #dee2ea;
             --btn-num-text: #1b2236;
 
-            --btn-op-bg: #e3f0ff;
-            --btn-op-hover: #d2e6ff;
-            --btn-op-text: #1976d2;
+            --btn-op-bg: #d6e7fb;
+            --btn-op-hover: #c8def6;
+            --btn-op-text: #1a6dca;
 
             --btn-eq-bg: linear-gradient(145deg, #2196f3 0%, #1565c0 100%);
             --btn-eq-hover: linear-gradient(145deg, #1e88e5 0%, #0d5bb5 100%);
             --btn-eq-text: #ffffff;
 
-            --btn-clear-bg: #dff7f3;
-            --btn-clear-hover: #cdf0ea;
+            --btn-clear-bg: #d4eee9;
+            --btn-clear-hover: #c6e6e0;
             --btn-clear-text: #0f9d8a;
 
-            --shadow-soft: 0 2px 4px rgba(30, 41, 90, 0.05), 0 8px 18px rgba(30, 41, 90, 0.07);
-            --shadow-pressed: 0 1px 2px rgba(30, 41, 90, 0.08);
+            --shadow-soft: 0 1px 2px rgba(30, 41, 90, 0.14), 0 1px 3px 1px rgba(30, 41, 90, 0.08);
+            --shadow-pressed: none;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: "Google Sans", "Product Sans", "Poppins", Roboto, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+            font-family: Roboto, "Google Sans", "Product Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
             -webkit-user-select: none;
@@ -50,6 +51,7 @@
             height: 100dvh;
             background: var(--bg-color);
             overflow: hidden;
+            overscroll-behavior: none;
             display: flex;
             flex-direction: column;
         }
@@ -79,13 +81,13 @@
         .current {
             font-size: clamp(2.8rem, 13vw, 4.5rem);
             color: var(--text-main);
-            font-weight: 500;
+            font-weight: 400;
             line-height: 1.1;
             word-wrap: break-word;
             word-break: break-all;
             text-align: right;
             width: 100%;
-            letter-spacing: -1.5px;
+            letter-spacing: -0.5px;
         }
 
         /* Keypad Area */
@@ -107,7 +109,11 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            transition: transform 0.08s cubic-bezier(0.2, 0, 0, 1), background-color 0.08s ease, box-shadow 0.08s ease;
+            position: relative;
+            overflow: hidden;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.12s ease, box-shadow 0.12s ease;
             aspect-ratio: 1 / 1;
             background-color: var(--btn-num-bg);
             color: var(--btn-num-text);
@@ -115,7 +121,8 @@
         }
 
         .btn:active {
-            transform: scale(0.92);
+            transform: scale(0.94);
+            transition-duration: 0.05s;
             box-shadow: var(--shadow-pressed);
         }
 
@@ -125,7 +132,13 @@
             color: var(--btn-op-text);
             font-size: 2.1rem;
             font-weight: 500;
-            box-shadow: 0 2px 4px rgba(25, 118, 210, 0.08), 0 8px 18px rgba(25, 118, 210, 0.10);
+            box-shadow: 0 1px 2px rgba(25, 118, 210, 0.20), 0 1px 3px 1px rgba(25, 118, 210, 0.10);
+        }
+
+        /* % and รท slightly lighter blue */
+        .operator[data-action="percent"],
+        .operator[data-val="/"] {
+            background-color: #dbe9fb;
         }
 
         /* Action Buttons (AC, DEL) */
@@ -134,7 +147,7 @@
             color: var(--btn-clear-text);
             font-size: 1.6rem;
             font-weight: 500;
-            box-shadow: 0 2px 4px rgba(15, 157, 138, 0.08), 0 8px 18px rgba(15, 157, 138, 0.10);
+            box-shadow: 0 1px 2px rgba(15, 157, 138, 0.20), 0 1px 3px 1px rgba(15, 157, 138, 0.10);
         }
 
         /* Equals Button */
@@ -144,7 +157,7 @@
             font-size: 2.3rem;
             font-weight: 500;
             border-radius: 40px;
-            box-shadow: 0 6px 12px rgba(25, 118, 210, 0.30), 0 14px 28px rgba(25, 118, 210, 0.25);
+            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.35), 0 8px 16px -4px rgba(25, 118, 210, 0.35);
         }
 
         .percent {
@@ -160,9 +173,27 @@
         @media (hover: hover) and (pointer: fine) {
             .btn:hover { background-color: var(--btn-num-hover); }
             .operator:hover { background-color: var(--btn-op-hover); }
+            .operator[data-action="percent"]:hover,
+            .operator[data-val="/"]:hover { background-color: #cfe1f7; }
             .action:hover { background-color: var(--btn-clear-hover); }
             .equal:hover { background: var(--btn-eq-hover); }
         }
+
+        /* Native-feel touches: ink ripple, squish-and-bounce, one-time key pop-in */
+        .current { transform-origin: right center; }
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0;
+            pointer-events: none;
+        }
+        @keyframes pop { from { transform: scale(0.55); opacity: 0; } }
+        body.ready .btn {
+            animation: pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+            animation-delay: calc(var(--i, 0) * 16ms);
+        }
+        @media (prefers-reduced-motion: reduce) { body.ready .btn { animation: none; } }
 
         /* Loading Spinner - light gray, bold, bigger */
         .loader {
@@ -264,6 +295,7 @@
                 const wait = Math.max(0, MIN_SHOW - (Date.now() - startTime));
                 setTimeout(() => {
                     loader.classList.add('hide');
+                    document.body.classList.add('ready');
                     setTimeout(() => loader.remove(), 400);
                 }, wait);
             }
@@ -288,6 +320,7 @@
 
         const display = document.getElementById('display');
         const previousDisplay = document.getElementById('previous');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
         // Formats numbers with commas (e.g., 1,000,000) perfectly
         function formatNumber(numberStr) {
@@ -314,7 +347,7 @@
             let previousText = '';
 
             if (operator) {
-                let opSymbol = operator === '*' ? '×' : operator === '/' ? '÷' : operator === '-' ? '−' : '+';
+                let opSymbol = operator === '*' ? 'ร—' : operator === '/' ? 'รท' : operator === '-' ? 'โ’' : '+';
                 
                 if (num2 !== '') {
                     previousText = `${formatNumber(num1)} ${opSymbol} ${num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2)}`;
@@ -446,7 +479,7 @@
                 const base = parseFloat(num1);
                 const val = parseFloat(num2);
                 if (isNaN(base) || isNaN(val)) return;
-                // + and -: percent of the first number (200 + 10% = 200 + 20). × and ÷: simply value / 100
+                // + and -: percent of the first number (200 + 10% = 200 + 20). ร— and รท: simply value / 100
                 if (num2Pct) return; // already a percentage
                 num2Raw = num2;
                 num2Pct = true;
@@ -474,11 +507,32 @@
             updateDisplay();
         }
 
+        // Material-style ink ripple that spreads from the touch point
+        function spawnRipple(btn, e) {
+            if (reduceMotion || !btn.animate) return;
+            const r = btn.getBoundingClientRect();
+            const size = Math.hypot(r.width, r.height) * 2;
+            const dot = document.createElement('span');
+            dot.className = 'ripple';
+            dot.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - r.left - size / 2}px;top:${e.clientY - r.top - size / 2}px`;
+            btn.appendChild(dot);
+            dot.animate(
+                [
+                    { transform: 'scale(0)', opacity: 0.24 },
+                    { transform: 'scale(0.6)', opacity: 0.16, offset: 0.4 },
+                    { transform: 'scale(1)', opacity: 0 }
+                ],
+                { duration: 450, easing: 'cubic-bezier(0.2, 0, 0, 1)' }
+            ).onfinish = () => dot.remove();
+        }
+
         // Extremely fast Pointer Down events for High Hz responsiveness
-        document.querySelectorAll('.btn').forEach(btn => {
+        document.querySelectorAll('.btn').forEach((btn, i) => {
+            btn.style.setProperty('--i', i);
             btn.addEventListener('pointerdown', (e) => {
                 // Haptic Feedback for Native Feel (Android)
                 if (navigator.vibrate) navigator.vibrate(5);
+                spawnRipple(btn, e);
                 
                 const action = btn.getAttribute('data-action');
                 const val = btn.getAttribute('data-val');
