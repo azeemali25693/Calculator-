@@ -69,25 +69,47 @@
             width: 100%;
         }
 
-        .previous {
-            font-size: clamp(1.3rem, 5.5vw, 1.7rem);
-            color: var(--text-muted);
-            min-height: 2.2rem;
-            margin-bottom: 6px;
-            font-weight: 400;
-            letter-spacing: 0.4px;
-        }
-
-        .current {
-            font-size: clamp(2.8rem, 13vw, 4.5rem);
-            color: var(--text-main);
+        /* Expression (top) and result (bottom) swap roles, like Google Calculator:
+           while typing -> BIG expression, small live result underneath
+           after "="     -> small expression moves up, BIG result below        */
+        .expr,
+        .result {
+            width: 100%;
+            text-align: right;
             font-weight: 400;
             line-height: 1.1;
-            word-wrap: break-word;
+            letter-spacing: 0;
+            white-space: nowrap;
+            transform-origin: right top;
+            /* Only colour is transitioned here. The size change after "=" is a
+               transform animation (see playMorph) which runs on the GPU. */
+            transition: color 0.25s ease;
+        }
+
+        /* Only used when text is too long even at the smallest size */
+        .expr.wrap,
+        .result.wrap {
+            white-space: normal;
             word-break: break-all;
-            text-align: right;
-            width: 100%;
-            letter-spacing: -0.5px;
+        }
+
+        .expr {
+            font-size: clamp(2.8rem, 13vw, 4.5rem);
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .result {
+            font-size: clamp(1.5rem, 7vw, 2.1rem);
+            color: var(--text-muted);
+            min-height: 1.2em;
+        }
+
+        .display-area.done .expr { color: var(--text-muted); }
+        .display-area.done .result { color: var(--text-main); }
+
+        @media (prefers-reduced-motion: reduce) {
+            .expr, .result { transition: none; }
         }
 
         /* Keypad Area */
@@ -113,7 +135,7 @@
             overflow: hidden;
             appearance: none;
             -webkit-appearance: none;
-            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.12s ease, box-shadow 0.12s ease;
+            transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
             aspect-ratio: 1 / 1;
             background-color: var(--btn-num-bg);
             color: var(--btn-num-text);
@@ -123,7 +145,6 @@
         .btn:active {
             transform: scale(0.94);
             transition-duration: 0.05s;
-            box-shadow: var(--shadow-pressed);
         }
 
         /* Operator Buttons */
@@ -180,7 +201,6 @@
         }
 
         /* Native-feel touches: ink ripple, squish-and-bounce, one-time key pop-in */
-        .current { transform-origin: right center; }
         .ripple {
             position: absolute;
             border-radius: 50%;
@@ -190,8 +210,8 @@
         }
         @keyframes pop { from { transform: scale(0.55); opacity: 0; } }
         body.ready .btn {
-            animation: pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
-            animation-delay: calc(var(--i, 0) * 16ms);
+            animation: pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+            animation-delay: calc(var(--i, 0) * 12ms);
         }
         @media (prefers-reduced-motion: reduce) { body.ready .btn { animation: none; } }
 
@@ -247,9 +267,9 @@
         </svg>
     </div>
 
-    <div class="display-area">
-        <div class="previous" id="previous"></div>
-        <div class="current" id="display">0</div>
+    <div class="display-area" id="displayArea">
+        <div class="expr" id="expr">0</div>
+        <div class="result" id="result"></div>
     </div>
 
     <div class="keypad">
@@ -284,7 +304,7 @@
         // Loader: spinner stays until the whole calculator has loaded
         (function () {
             const loader = document.getElementById('loader');
-            const MIN_SHOW = 400;   // show spinner for at least this many ms (avoids flash)
+            const MIN_SHOW = 300;   // show spinner for at least this many ms (avoids flash)
             const MAX_WAIT = 6000;  // safety: force-hide after this many ms
             const startTime = Date.now();
             let done = false;
@@ -318,9 +338,21 @@
         let num2Pct = false; // true when % was applied to the second number
         let num2Raw = '';    // what the person typed before pressing %
 
-        const display = document.getElementById('display');
-        const previousDisplay = document.getElementById('previous');
+        let lastExpr = '';   // the expression shown (small) above the result after pressing =
+
+        const displayArea = document.getElementById('displayArea');
+        const exprEl = document.getElementById('expr');
+        const resultEl = document.getElementById('result');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Text is measured with a canvas (no layout work) so long numbers can shrink to fit
+        const measureCtx = document.createElement('canvas').getContext('2d');
+        let availWidth = 0;   // width of the display lines, cached (re-read only on resize)
+
+        function refreshMetrics() {
+            measureCtx.font = '400 100px ' + getComputedStyle(exprEl).fontFamily;
+            availWidth = exprEl.clientWidth;
+        }
 
         // Operator symbols as Unicode escapes (safe in any file encoding)
         const OP_SYMBOLS = {
@@ -349,27 +381,148 @@
             }
         }
 
-        // Live calculates without needing to press Equal
+        // Text sizes (px) for the "big" and "small" lines, same scale as the old CSS clamp() values
+        function textSizes() {
+            const w = window.innerWidth;
+            return {
+                big: Math.min(72, Math.max(44.8, w * 0.13)),
+                small: Math.min(33.6, Math.max(24, w * 0.07))
+            };
+        }
+
+        // Puts text into a line and shrinks the font so it fits on one row.
+        // If it still doesn't fit at minPx, it wraps onto more rows instead.
+        function fitText(el, text, maxPx, minPx) {
+            if (el.textContent !== text) el.textContent = text;
+            const textWidthAt100 = measureCtx.measureText(text || '0').width;
+
+            let size = maxPx;
+            if (textWidthAt100 > 0 && availWidth > 0) {
+                size = Math.min(maxPx, (availWidth / textWidthAt100) * 100 * 0.97);
+            }
+            el.classList.toggle('wrap', size < minPx);
+            el.style.fontSize = Math.max(size, minPx).toFixed(1) + 'px';
+        }
+
+        // The full expression as the person typed it, e.g. 10,000+500
+        function buildExpression() {
+            if (operator === null) return formatNumber(num1);
+            const opSymbol = OP_SYMBOLS[operator] || '+';
+            if (num2 === '') return formatNumber(num1) + opSymbol;
+            return formatNumber(num1) + opSymbol + (num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2));
+        }
+
+        // Redraws are batched to once per frame, so fast tapping never piles up layout work
+        let renderQueued = false;
+        let hasRendered = false;   // no pop animations during the very first draw
+
         function updateDisplay() {
-            let currentResult = num1;
-            let previousText = '';
+            if (renderQueued) return;
+            renderQueued = true;
+            requestAnimationFrame(render);
+        }
 
-            if (operator) {
-                const opSymbol = OP_SYMBOLS[operator] || '+';
+        // Live calculates without needing to press Equal
+        function render() {
+            renderQueued = false;
+            const { big, small } = textSizes();
+            const done = isFinished && operator === null;
+            const wasDone = displayArea.classList.contains('done');
+            const prevExpr = exprEl.textContent;
+            const prevResult = resultEl.textContent;
+            const animate = hasRendered && !reduceMotion;
 
-                if (num2 !== '') {
-                    previousText = `${formatNumber(num1)} ${opSymbol} ${num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2)}`;
-                    currentResult = calculate(num1, operator, num2).toString();
-                } else {
-                    previousText = `${formatNumber(num1)} ${opSymbol}`;
-                    currentResult = num1;
-                }
+            // "First" step of the "=" morph: where both lines are right now, before the change
+            const first = (animate && done && !wasDone) ? [exprEl, resultEl].map(measureLine) : null;
+
+            displayArea.classList.toggle('done', done);
+
+            if (done) {
+                // After "=": small expression on top, BIG result below
+                fitText(exprEl, lastExpr, small, 16);
+                fitText(resultEl, formatNumber(num1), big, 28);
             } else {
-                currentResult = num1;
+                // While typing: BIG expression on top, small live result below
+                const live = (operator && num2 !== '')
+                    ? formatNumber(calculate(num1, operator, num2).toString())
+                    : '';
+                fitText(exprEl, buildExpression(), big, 32);
+                fitText(resultEl, live, small, 16);
             }
 
-            previousDisplay.innerText = previousText;
-            display.innerText = formatNumber(currentResult);
+            hasRendered = true;
+            if (!animate) return;
+
+            if (first) {
+                playMorph(first);                          // typing -> after "="
+            } else if (wasDone && !done) {
+                popIn(exprEl, 0.9);                        // a new calculation starts after a result
+            } else {
+                if (exprEl.textContent !== prevExpr) popIn(exprEl, 1.04);
+                if (resultEl.textContent !== prevResult) {
+                    if (prevResult === '') slideIn(resultEl);   // live result appears for the first time
+                    else popIn(resultEl, 1.06);
+                }
+            }
+        }
+
+        function measureLine(el) {
+            return {
+                top: el.getBoundingClientRect().top,
+                size: parseFloat(getComputedStyle(el).fontSize)
+            };
+        }
+
+        // All animations below only use transform / opacity, which the phone's GPU
+        // handles on its own - so they stay smooth and never slow down typing.
+        const EASE_OUT = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
+        const EASE_BOUNCE = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+        // After "=": each line starts looking like it did before (old size and position)
+        // and glides to its new place. The result overshoots a little and settles in.
+        function playMorph(first) {
+            [exprEl, resultEl].forEach((el, i) => {
+                const from = first[i];
+                const top = el.getBoundingClientRect().top;
+                const size = parseFloat(getComputedStyle(el).fontSize);
+                if (!from.size || !size) return;
+                const start = `translateY(${from.top - top}px) scale(${from.size / size})`;
+
+                if (el === resultEl) {
+                    el.animate(
+                        [
+                            { transform: start, easing: EASE_OUT },
+                            { transform: 'translateY(0) scale(1.05)', offset: 0.65, easing: 'ease-in-out' },
+                            { transform: 'translateY(0) scale(1)' }
+                        ],
+                        { duration: 400 }
+                    );
+                } else {
+                    el.animate(
+                        [{ transform: start }, { transform: 'translateY(0) scale(1)' }],
+                        { duration: 320, easing: EASE_OUT }
+                    );
+                }
+            });
+        }
+
+        // Small bouncy pop when a line's text changes
+        function popIn(el, fromScale) {
+            el.animate(
+                [{ transform: `scale(${fromScale})` }, { transform: 'scale(1)' }],
+                { duration: 220, easing: EASE_BOUNCE }
+            );
+        }
+
+        // The live result slides up and fades in the first time it shows
+        function slideIn(el) {
+            el.animate(
+                [
+                    { transform: 'translateY(10px)', opacity: 0 },
+                    { transform: 'translateY(0)', opacity: 1 }
+                ],
+                { duration: 240, easing: EASE_OUT }
+            );
         }
 
         function calculate(n1, op, n2) {
@@ -431,39 +584,13 @@
 
         function handleEqual() {
             if (operator === null || num2 === '') return;
+            lastExpr = buildExpression();   // remember what was calculated, e.g. 10,000+500
             num1 = calculate(num1, operator, num2).toString();
             operator = null;
             num2 = '';
             isFinished = true;
             num2Pct = false;
-            const oldExpr = previousDisplay.innerText;
-            const oldRect = previousDisplay.getBoundingClientRect();
-            updateDisplay();
-            playEqualAnimation(oldExpr, oldRect);
-        }
-
-        function playEqualAnimation(oldExpr, rect) {
-            if (!display.animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-            const ease = 'cubic-bezier(0.2, 0.8, 0.2, 1)';
-
-            // Old expression floats up and fades out
-            if (oldExpr) {
-                const ghost = previousDisplay.cloneNode(false);
-                ghost.removeAttribute('id');
-                ghost.textContent = oldExpr;
-                ghost.style.cssText = 'position:fixed;margin:0;pointer-events:none;top:' + rect.top + 'px;right:' + (document.documentElement.clientWidth - rect.right) + 'px;';
-                document.body.appendChild(ghost);
-                ghost.animate(
-                    [{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-32px)', opacity: 0 }],
-                    { duration: 320, easing: ease, fill: 'forwards' }
-                ).onfinish = () => ghost.remove();
-            }
-
-            // Result rises up smoothly into place
-            display.animate(
-                [{ transform: 'translateY(26px)', opacity: 0.25 }, { transform: 'translateY(0)', opacity: 1 }],
-                { duration: 320, easing: ease }
-            );
+            updateDisplay();   // the two lines morph into their "after =" look (see playMorph)
         }
 
         function handleClear() {
@@ -482,6 +609,7 @@
             if (operator === null) {
                 const v = parseFloat(num1);
                 if (isNaN(v)) return;
+                if (isFinished) lastExpr = formatNumber(num1) + '%';
                 num1 = round(v / 100);
             } else if (num2 !== '') {
                 const base = parseFloat(num1);
@@ -530,7 +658,7 @@
                     { transform: 'scale(0.6)', opacity: 0.16, offset: 0.4 },
                     { transform: 'scale(1)', opacity: 0 }
                 ],
-                { duration: 450, easing: 'cubic-bezier(0.2, 0, 0, 1)' }
+                { duration: 400, easing: 'cubic-bezier(0.2, 0, 0, 1)' }
             ).onfinish = () => dot.remove();
         }
 
@@ -538,24 +666,33 @@
         document.querySelectorAll('.btn').forEach((btn, i) => {
             btn.style.setProperty('--i', i);
             btn.addEventListener('pointerdown', (e) => {
-                // Haptic Feedback for Native Feel (Android)
-                if (navigator.vibrate) navigator.vibrate(5);
-                spawnRipple(btn, e);
-
                 const action = btn.getAttribute('data-action');
                 const val = btn.getAttribute('data-val');
 
+                // Calculator logic first, so the number updates as fast as possible
                 if(action === 'num') handleNumber(val);
                 if(action === 'op') handleOperator(val);
                 if(action === 'eq') handleEqual();
                 if(action === 'clear') handleClear();
                 if(action === 'del') handleDelete();
                 if(action === 'percent') handlePercent();
+
+                // Feedback effects after that
+                spawnRipple(btn, e);
+                // Haptic Feedback for Native Feel (Android)
+                if (navigator.vibrate) navigator.vibrate(5);
             });
 
             // Prevent double zooming/context menu issues
             btn.addEventListener('contextmenu', e => e.preventDefault());
         });
+
+        // Initial render + keep text sizes right on rotate/resize and once fonts are loaded
+        const onMetricsChange = () => { refreshMetrics(); updateDisplay(); };
+        refreshMetrics();
+        updateDisplay();
+        window.addEventListener('resize', onMetricsChange);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(onMetricsChange);
     </script>
 </body>
 </html>
