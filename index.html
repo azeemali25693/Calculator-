@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0e1014">
+    <meta name="theme-color" content="#f3eee4">
     <title>Fast Auto-Calc Professional</title>
     <script>
-        var t = 'dark'; try { t = localStorage.getItem('calcTheme') || 'dark'; } catch (e) {} if (t !== 'default') document.documentElement.setAttribute('data-theme', t); try { if (localStorage.getItem('calcFx') === '3d') document.documentElement.setAttribute('data-fx', '3d'); } catch (e) {}
+        var t = 'sand'; try { t = localStorage.getItem('calcTheme') || 'sand'; } catch (e) {} if (t !== 'sand' && t !== 'dark') t = 'sand'; document.documentElement.setAttribute('data-theme', t);
     </script>
     <style>
         :root {
@@ -50,54 +50,6 @@
         }
 
         /* ================= THEMES ================= */
-        /* 1. Rose */
-        [data-theme="rose"] {
-            --bg-color: #fbeef1; --text-main: #3a1f28; --text-muted: #a88a95;
-            --btn-num-bg: #fffafb; --btn-num-hover: #f6e6ea; --btn-num-text: #3a1f28;
-            --btn-op-bg: #f8d7e0; --btn-op-hover: #f3c8d4; --btn-op-text: #c2386a;
-            --btn-op-alt: #fbe0e7; --btn-op-alt-hover: #f6d0da;
-            --btn-eq-bg: linear-gradient(145deg, #f06292 0%, #c2185b 100%);
-            --btn-eq-hover: linear-gradient(145deg, #ec5586 0%, #ad1450 100%);
-            --btn-clear-bg: #f1dff2; --btn-clear-hover: #e8d0ea; --btn-clear-text: #9c4a98;
-            --sh-rgb: 120, 40, 70; --op-rgb: 194, 56, 106; --clr-rgb: 156, 74, 152; --eq-rgb: 194, 24, 91;
-            --spin-track: #f3dfe5; --spin-arc: #d9aab8;
-        }
-        /* 2. Mint */
-        [data-theme="mint"] {
-            --bg-color: #e9f5ef; --text-main: #16302a; --text-muted: #7a9a8f;
-            --btn-num-bg: #f8fdfa; --btn-num-hover: #e8f3ed; --btn-num-text: #16302a;
-            --btn-op-bg: #cdeedd; --btn-op-hover: #bfe6d1; --btn-op-text: #1b8a5a;
-            --btn-op-alt: #d9f1e4; --btn-op-alt-hover: #cbe9d9;
-            --btn-eq-bg: linear-gradient(145deg, #34c28a 0%, #14885a 100%);
-            --btn-eq-hover: linear-gradient(145deg, #2db480 0%, #107a50 100%);
-            --btn-clear-bg: #dde9f6; --btn-clear-hover: #cfdff0; --btn-clear-text: #3a78b5;
-            --sh-rgb: 20, 80, 60; --op-rgb: 27, 138, 90; --clr-rgb: 58, 120, 181; --eq-rgb: 20, 136, 90;
-            --spin-track: #dcebe3; --spin-arc: #a5c4b5;
-        }
-        /* 3. Lavender */
-        [data-theme="lavender"] {
-            --bg-color: #efeafa; --text-main: #25203d; --text-muted: #8d86a8;
-            --btn-num-bg: #faf8ff; --btn-num-hover: #eee9f8; --btn-num-text: #25203d;
-            --btn-op-bg: #ddd3f6; --btn-op-hover: #d0c4f1; --btn-op-text: #6a4cc7;
-            --btn-op-alt: #e5ddf8; --btn-op-alt-hover: #d9cff3;
-            --btn-eq-bg: linear-gradient(145deg, #9575e8 0%, #5e3bc4 100%);
-            --btn-eq-hover: linear-gradient(145deg, #8866e2 0%, #5231b3 100%);
-            --btn-clear-bg: #fbe0ea; --btn-clear-hover: #f6d0de; --btn-clear-text: #cc4a78;
-            --sh-rgb: 60, 40, 120; --op-rgb: 106, 76, 199; --clr-rgb: 204, 74, 120; --eq-rgb: 94, 59, 196;
-            --spin-track: #e4def3; --spin-arc: #b9afd6;
-        }
-        /* 4. Peach */
-        [data-theme="peach"] {
-            --bg-color: #fdf0e6; --text-main: #3b2519; --text-muted: #a98f7c;
-            --btn-num-bg: #fffaf5; --btn-num-hover: #f7eadf; --btn-num-text: #3b2519;
-            --btn-op-bg: #fbd9bf; --btn-op-hover: #f6cca9; --btn-op-text: #c9601d;
-            --btn-op-alt: #fce2cf; --btn-op-alt-hover: #f7d5bb;
-            --btn-eq-bg: linear-gradient(145deg, #ff9a5a 0%, #e0601b 100%);
-            --btn-eq-hover: linear-gradient(145deg, #fa8d49 0%, #cf5410 100%);
-            --btn-clear-bg: #e3efe0; --btn-clear-hover: #d5e6d1; --btn-clear-text: #4f8f45;
-            --sh-rgb: 120, 60, 20; --op-rgb: 201, 96, 29; --clr-rgb: 79, 143, 69; --eq-rgb: 224, 96, 27;
-            --spin-track: #f3e4d6; --spin-arc: #d6b99f;
-        }
         /* 5. Sand */
         [data-theme="sand"] {
             --bg-color: #f3eee4; --text-main: #33291c; --text-muted: #9d907a;
@@ -145,62 +97,6 @@
             display: flex;
             flex-direction: column;
         }
-
-        /* ===== 3D / floating effect (only when switched ON) ===== */
-        html[data-fx="3d"] {
-            --shadow-soft: 0 1px 2px rgba(var(--sh-rgb), 0.14), 0 1px 3px 1px rgba(var(--sh-rgb), 0.08);
-        }
-        html[data-fx="3d"] .operator { box-shadow: 0 1px 2px rgba(var(--op-rgb), 0.20), 0 1px 3px 1px rgba(var(--op-rgb), 0.10); }
-        html[data-fx="3d"] .action   { box-shadow: 0 1px 2px rgba(var(--clr-rgb), 0.20), 0 1px 3px 1px rgba(var(--clr-rgb), 0.10); }
-        html[data-fx="3d"] .equal    { box-shadow: 0 2px 6px rgba(var(--eq-rgb), 0.35), 0 8px 16px -4px rgba(var(--eq-rgb), 0.35); }
-
-        /* 3D on the black theme: rim light + deep shadow + soft glow */
-        html[data-fx="3d"][data-theme="dark"] {
-            --shadow-soft:
-                0 1px 1px rgba(0, 0, 0, 0.7),
-                0 5px 12px rgba(0, 0, 0, 0.55),
-                0 0 0 1px rgba(255, 255, 255, 0.06),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
-        }
-        html[data-fx="3d"][data-theme="dark"] .operator {
-            box-shadow: 0 1px 1px rgba(0,0,0,0.7), 0 5px 12px rgba(0,0,0,0.55), 0 0 14px rgba(108,180,255,0.10),
-                        0 0 0 1px rgba(108,180,255,0.16), inset 0 1px 0 rgba(160,205,255,0.14);
-        }
-        html[data-fx="3d"][data-theme="dark"] .action {
-            box-shadow: 0 1px 1px rgba(0,0,0,0.7), 0 5px 12px rgba(0,0,0,0.55), 0 0 14px rgba(79,209,184,0.10),
-                        0 0 0 1px rgba(79,209,184,0.16), inset 0 1px 0 rgba(150,235,220,0.14);
-        }
-        html[data-fx="3d"][data-theme="dark"] .equal {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.6), 0 8px 20px rgba(33,150,243,0.40),
-                        0 0 0 1px rgba(120,190,255,0.30), inset 0 1px 0 rgba(255,255,255,0.25);
-        }
-
-        /* 3D switch inside the theme panel */
-        .fx-row {
-            flex: 1 1 100%;
-            display: flex; align-items: center; justify-content: space-between; gap: 16px;
-            margin-top: 4px; padding: 12px 4px 0;
-            border: none; border-top: 1px solid rgba(128, 128, 128, 0.22);
-            background: transparent;
-            color: var(--btn-num-text);
-            font-size: 1rem; font-weight: 500;
-            cursor: pointer;
-        }
-        .fx-track {
-            position: relative; flex: none;
-            width: 46px; height: 26px; border-radius: 13px;
-            background: rgba(128, 128, 128, 0.35);
-            transition: background-color 0.25s ease;
-        }
-        .fx-track::after {
-            content: ""; position: absolute; top: 3px; left: 3px;
-            width: 20px; height: 20px; border-radius: 50%;
-            background: #fff;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .fx-row[aria-checked="true"] .fx-track { background: var(--btn-op-text); }
-        .fx-row[aria-checked="true"] .fx-track::after { transform: translateX(20px); }
 
         /* Theme picker */
         .theme-btn {
@@ -527,11 +423,6 @@
         // Theme picker
         (function () {
             const THEMES = [
-                { id: 'default',  name: 'Ocean Blue', bg: '#ebf0f7', accent: '#2196f3', meta: '#ebf0f7' },
-                { id: 'rose',     name: 'Rose',       bg: '#fbeef1', accent: '#f06292', meta: '#fbeef1' },
-                { id: 'mint',     name: 'Mint',       bg: '#e9f5ef', accent: '#34c28a', meta: '#e9f5ef' },
-                { id: 'lavender', name: 'Lavender',   bg: '#efeafa', accent: '#9575e8', meta: '#efeafa' },
-                { id: 'peach',    name: 'Peach',      bg: '#fdf0e6', accent: '#ff9a5a', meta: '#fdf0e6' },
                 { id: 'sand',     name: 'Sand',       bg: '#f3eee4', accent: '#c9a24f', meta: '#f3eee4' },
                 { id: 'dark',     name: 'Black',      bg: '#0e1014', accent: '#2196f3', meta: '#0e1014' }
             ];
@@ -541,9 +432,8 @@
             const metaTag = document.querySelector('meta[name="theme-color"]');
 
             function apply(id, save) {
-                const t = THEMES.find(x => x.id === id) || THEMES[0];
-                if (t.id === 'default') root.removeAttribute('data-theme');
-                else root.setAttribute('data-theme', t.id);
+                const t = THEMES.find(x => x.id === id) || THEMES.find(x => x.id === 'sand');
+                root.setAttribute('data-theme', t.id);
                 if (metaTag) metaTag.setAttribute('content', t.meta);
                 panel.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.id === t.id));
                 if (save) { try { localStorage.setItem('calcTheme', t.id); } catch (e) {} }
@@ -560,23 +450,6 @@
                 panel.appendChild(b);
             });
 
-            // 3D effect switch (off by default = flat buttons)
-            const fxRow = document.createElement('button');
-            fxRow.className = 'fx-row';
-            fxRow.setAttribute('role', 'switch');
-            fxRow.innerHTML = '<span>3D effect</span><span class="fx-track"></span>';
-            panel.appendChild(fxRow);
-
-            function applyFx(on, save) {
-                if (on) root.setAttribute('data-fx', '3d'); else root.removeAttribute('data-fx');
-                fxRow.setAttribute('aria-checked', on ? 'true' : 'false');
-                if (save) { try { localStorage.setItem('calcFx', on ? '3d' : 'flat'); } catch (e) {} }
-            }
-            fxRow.addEventListener('click', () => applyFx(root.getAttribute('data-fx') !== '3d', true));
-            let savedFx = null;
-            try { savedFx = localStorage.getItem('calcFx'); } catch (e) {}
-            applyFx(savedFx === '3d', false);
-
             btn.addEventListener('click', e => { e.stopPropagation(); panel.classList.toggle('open'); });
             document.addEventListener('pointerdown', e => {
                 if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.remove('open');
@@ -584,7 +457,7 @@
 
             let saved = null;
             try { saved = localStorage.getItem('calcTheme'); } catch (e) {}
-            apply(saved || 'dark', false);
+            apply(saved || 'sand', false);
         })();
 
         // State variables for auto-calculation
