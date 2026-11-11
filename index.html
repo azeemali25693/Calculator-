@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#ebf0f7">
+    <meta name="theme-color" content="#0e1014">
     <title>Fast Auto-Calc Professional</title>
     <script>
-        try { var t = localStorage.getItem('calcTheme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+        var t = 'dark'; try { t = localStorage.getItem('calcTheme') || 'dark'; } catch (e) {} if (t !== 'default') document.documentElement.setAttribute('data-theme', t);
     </script>
     <style>
         :root {
@@ -510,7 +510,7 @@
 
             let saved = null;
             try { saved = localStorage.getItem('calcTheme'); } catch (e) {}
-            apply(saved || 'default', false);
+            apply(saved || 'dark', false);
         })();
 
         // State variables for auto-calculation
