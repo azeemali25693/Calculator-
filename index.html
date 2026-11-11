@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#ebf0f7">
     <title>Fast Auto-Calc Professional</title>
+    <script>
+        try { var t = localStorage.getItem('calcTheme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+    </script>
     <style>
         :root {
             /* Premium Soft Flutter / Material You Theme */
@@ -31,8 +34,93 @@
             --btn-clear-hover: #c6e6e0;
             --btn-clear-text: #0f9d8a;
 
-            --shadow-soft: 0 1px 2px rgba(30, 41, 90, 0.14), 0 1px 3px 1px rgba(30, 41, 90, 0.08);
+            --btn-op-alt: #dbe9fb;
+            --btn-op-alt-hover: #cfe1f7;
+
+            --sh-rgb: 30, 41, 90;
+            --op-rgb: 25, 118, 210;
+            --clr-rgb: 15, 157, 138;
+            --eq-rgb: 25, 118, 210;
+
+            --spin-track: #e3e6ee;
+            --spin-arc: #b4bac8;
+
+            --shadow-soft: 0 1px 2px rgba(var(--sh-rgb), 0.14), 0 1px 3px 1px rgba(var(--sh-rgb), 0.08);
             --shadow-pressed: none;
+        }
+
+        /* ================= THEMES ================= */
+        /* 1. Rose */
+        [data-theme="rose"] {
+            --bg-color: #fbeef1; --text-main: #3a1f28; --text-muted: #a88a95;
+            --btn-num-bg: #fffafb; --btn-num-hover: #f6e6ea; --btn-num-text: #3a1f28;
+            --btn-op-bg: #f8d7e0; --btn-op-hover: #f3c8d4; --btn-op-text: #c2386a;
+            --btn-op-alt: #fbe0e7; --btn-op-alt-hover: #f6d0da;
+            --btn-eq-bg: linear-gradient(145deg, #f06292 0%, #c2185b 100%);
+            --btn-eq-hover: linear-gradient(145deg, #ec5586 0%, #ad1450 100%);
+            --btn-clear-bg: #f1dff2; --btn-clear-hover: #e8d0ea; --btn-clear-text: #9c4a98;
+            --sh-rgb: 120, 40, 70; --op-rgb: 194, 56, 106; --clr-rgb: 156, 74, 152; --eq-rgb: 194, 24, 91;
+            --spin-track: #f3dfe5; --spin-arc: #d9aab8;
+        }
+        /* 2. Mint */
+        [data-theme="mint"] {
+            --bg-color: #e9f5ef; --text-main: #16302a; --text-muted: #7a9a8f;
+            --btn-num-bg: #f8fdfa; --btn-num-hover: #e8f3ed; --btn-num-text: #16302a;
+            --btn-op-bg: #cdeedd; --btn-op-hover: #bfe6d1; --btn-op-text: #1b8a5a;
+            --btn-op-alt: #d9f1e4; --btn-op-alt-hover: #cbe9d9;
+            --btn-eq-bg: linear-gradient(145deg, #34c28a 0%, #14885a 100%);
+            --btn-eq-hover: linear-gradient(145deg, #2db480 0%, #107a50 100%);
+            --btn-clear-bg: #dde9f6; --btn-clear-hover: #cfdff0; --btn-clear-text: #3a78b5;
+            --sh-rgb: 20, 80, 60; --op-rgb: 27, 138, 90; --clr-rgb: 58, 120, 181; --eq-rgb: 20, 136, 90;
+            --spin-track: #dcebe3; --spin-arc: #a5c4b5;
+        }
+        /* 3. Lavender */
+        [data-theme="lavender"] {
+            --bg-color: #efeafa; --text-main: #25203d; --text-muted: #8d86a8;
+            --btn-num-bg: #faf8ff; --btn-num-hover: #eee9f8; --btn-num-text: #25203d;
+            --btn-op-bg: #ddd3f6; --btn-op-hover: #d0c4f1; --btn-op-text: #6a4cc7;
+            --btn-op-alt: #e5ddf8; --btn-op-alt-hover: #d9cff3;
+            --btn-eq-bg: linear-gradient(145deg, #9575e8 0%, #5e3bc4 100%);
+            --btn-eq-hover: linear-gradient(145deg, #8866e2 0%, #5231b3 100%);
+            --btn-clear-bg: #fbe0ea; --btn-clear-hover: #f6d0de; --btn-clear-text: #cc4a78;
+            --sh-rgb: 60, 40, 120; --op-rgb: 106, 76, 199; --clr-rgb: 204, 74, 120; --eq-rgb: 94, 59, 196;
+            --spin-track: #e4def3; --spin-arc: #b9afd6;
+        }
+        /* 4. Peach */
+        [data-theme="peach"] {
+            --bg-color: #fdf0e6; --text-main: #3b2519; --text-muted: #a98f7c;
+            --btn-num-bg: #fffaf5; --btn-num-hover: #f7eadf; --btn-num-text: #3b2519;
+            --btn-op-bg: #fbd9bf; --btn-op-hover: #f6cca9; --btn-op-text: #c9601d;
+            --btn-op-alt: #fce2cf; --btn-op-alt-hover: #f7d5bb;
+            --btn-eq-bg: linear-gradient(145deg, #ff9a5a 0%, #e0601b 100%);
+            --btn-eq-hover: linear-gradient(145deg, #fa8d49 0%, #cf5410 100%);
+            --btn-clear-bg: #e3efe0; --btn-clear-hover: #d5e6d1; --btn-clear-text: #4f8f45;
+            --sh-rgb: 120, 60, 20; --op-rgb: 201, 96, 29; --clr-rgb: 79, 143, 69; --eq-rgb: 224, 96, 27;
+            --spin-track: #f3e4d6; --spin-arc: #d6b99f;
+        }
+        /* 5. Sand */
+        [data-theme="sand"] {
+            --bg-color: #f3eee4; --text-main: #33291c; --text-muted: #9d907a;
+            --btn-num-bg: #fcfaf5; --btn-num-hover: #eee8db; --btn-num-text: #33291c;
+            --btn-op-bg: #e7dcc4; --btn-op-hover: #ddd0b4; --btn-op-text: #8a6a2c;
+            --btn-op-alt: #ece3cf; --btn-op-alt-hover: #e2d7be;
+            --btn-eq-bg: linear-gradient(145deg, #c9a24f 0%, #8c6a1f 100%);
+            --btn-eq-hover: linear-gradient(145deg, #bf9743 0%, #7d5d17 100%);
+            --btn-clear-bg: #dfe8e2; --btn-clear-hover: #d0ddd4; --btn-clear-text: #4d7a63;
+            --sh-rgb: 90, 70, 30; --op-rgb: 138, 106, 44; --clr-rgb: 77, 122, 99; --eq-rgb: 140, 106, 31;
+            --spin-track: #e8e1d2; --spin-arc: #c4b79c;
+        }
+        /* 6. Black (dark mode) */
+        [data-theme="dark"] {
+            --bg-color: #0e1014; --text-main: #eceff4; --text-muted: #8b93a3;
+            --btn-num-bg: #1c1f26; --btn-num-hover: #262a33; --btn-num-text: #eceff4;
+            --btn-op-bg: #222b3a; --btn-op-hover: #2c3649; --btn-op-text: #6cb4ff;
+            --btn-op-alt: #1e2634; --btn-op-alt-hover: #29334a;
+            --btn-eq-bg: linear-gradient(145deg, #2196f3 0%, #1565c0 100%);
+            --btn-eq-hover: linear-gradient(145deg, #1e88e5 0%, #0d5bb5 100%);
+            --btn-clear-bg: #1d2e2b; --btn-clear-hover: #25403b; --btn-clear-text: #4fd1b8;
+            --sh-rgb: 0, 0, 0; --op-rgb: 0, 0, 0; --clr-rgb: 0, 0, 0; --eq-rgb: 33, 150, 243;
+            --spin-track: #1f232b; --spin-arc: #4a5262;
         }
 
         * {
@@ -50,14 +138,59 @@
             height: 100%;
             height: 100dvh;
             background: var(--bg-color);
+            transition: background-color 0.3s ease;
             overflow: hidden;
             overscroll-behavior: none;
             display: flex;
             flex-direction: column;
         }
 
+        /* Theme picker */
+        .theme-btn {
+            position: absolute;
+            top: calc(14px + env(safe-area-inset-top));
+            right: 16px;
+            width: 44px; height: 44px;
+            border: none; border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            background: var(--btn-op-bg);
+            color: var(--btn-op-text);
+            box-shadow: var(--shadow-soft);
+            cursor: pointer;
+            z-index: 5;
+            transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, color 0.3s ease;
+        }
+        .theme-btn:active { transform: scale(0.92); transition-duration: 0.05s; }
+        .theme-panel {
+            position: absolute;
+            top: calc(66px + env(safe-area-inset-top));
+            right: 16px;
+            max-width: calc(100vw - 32px);
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+            padding: 14px 16px;
+            background: var(--btn-num-bg);
+            border-radius: 28px;
+            box-shadow: 0 4px 24px rgba(var(--sh-rgb), 0.22), 0 1px 3px rgba(var(--sh-rgb), 0.18);
+            z-index: 6;
+            opacity: 0; visibility: hidden;
+            transform: translateY(-8px) scale(0.96);
+            transform-origin: top right;
+            transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.2s, background-color 0.3s ease;
+        }
+        .theme-panel.open { opacity: 1; visibility: visible; transform: none; }
+        .swatch {
+            width: 38px; height: 38px;
+            border: none; border-radius: 50%;
+            cursor: pointer;
+            box-shadow: inset 0 0 0 1.5px rgba(128, 128, 128, 0.28);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .swatch:active { transform: scale(0.88); }
+        .swatch.active { box-shadow: 0 0 0 3px var(--btn-num-bg), 0 0 0 5px var(--btn-op-text); }
+
         /* Display Area - soft elevated card */
         .display-area {
+            position: relative;
             flex: 1;
             background: var(--display-bg);
             display: flex;
@@ -135,7 +268,7 @@
             overflow: hidden;
             appearance: none;
             -webkit-appearance: none;
-            transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, color 0.3s ease;
             aspect-ratio: 1 / 1;
             background-color: var(--btn-num-bg);
             color: var(--btn-num-text);
@@ -153,13 +286,13 @@
             color: var(--btn-op-text);
             font-size: 2.1rem;
             font-weight: 500;
-            box-shadow: 0 1px 2px rgba(25, 118, 210, 0.20), 0 1px 3px 1px rgba(25, 118, 210, 0.10);
+            box-shadow: 0 1px 2px rgba(var(--op-rgb), 0.20), 0 1px 3px 1px rgba(var(--op-rgb), 0.10);
         }
 
         /* % and divide slightly lighter blue */
         .operator[data-action="percent"],
         .operator[data-val="/"] {
-            background-color: #dbe9fb;
+            background-color: var(--btn-op-alt);
         }
 
         /* Action Buttons (AC, DEL) */
@@ -168,7 +301,7 @@
             color: var(--btn-clear-text);
             font-size: 1.6rem;
             font-weight: 500;
-            box-shadow: 0 1px 2px rgba(15, 157, 138, 0.20), 0 1px 3px 1px rgba(15, 157, 138, 0.10);
+            box-shadow: 0 1px 2px rgba(var(--clr-rgb), 0.20), 0 1px 3px 1px rgba(var(--clr-rgb), 0.10);
         }
 
         /* Equals Button */
@@ -178,7 +311,7 @@
             font-size: 2.3rem;
             font-weight: 500;
             border-radius: 40px;
-            box-shadow: 0 2px 6px rgba(25, 118, 210, 0.35), 0 8px 16px -4px rgba(25, 118, 210, 0.35);
+            box-shadow: 0 2px 6px rgba(var(--eq-rgb), 0.35), 0 8px 16px -4px rgba(var(--eq-rgb), 0.35);
         }
 
         .percent {
@@ -195,7 +328,7 @@
             .btn:hover { background-color: var(--btn-num-hover); }
             .operator:hover { background-color: var(--btn-op-hover); }
             .operator[data-action="percent"]:hover,
-            .operator[data-val="/"]:hover { background-color: #cfe1f7; }
+            .operator[data-val="/"]:hover { background-color: var(--btn-op-alt-hover); }
             .action:hover { background-color: var(--btn-clear-hover); }
             .equal:hover { background: var(--btn-eq-hover); }
         }
@@ -246,9 +379,9 @@
             stroke-linecap: round;
         }
 
-        .spinner .track { stroke: #e3e6ee; }
+        .spinner .track { stroke: var(--spin-track); }
         .spinner .arc {
-            stroke: #b4bac8;
+            stroke: var(--spin-arc);
             stroke-dasharray: 70 200;
         }
 
@@ -268,6 +401,10 @@
     </div>
 
     <div class="display-area" id="displayArea">
+        <button class="theme-btn" id="themeBtn" aria-label="Change theme">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.8-.5-1.2-.3-.4-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5c0-3.9-4-7.2-9-7.2z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10.5" cy="7" r="1" fill="currentColor"/><circle cx="15" cy="7.5" r="1" fill="currentColor"/></svg>
+        </button>
+        <div class="theme-panel" id="themePanel" role="listbox" aria-label="Themes"></div>
         <div class="expr" id="expr">0</div>
         <div class="result" id="result"></div>
     </div>
@@ -328,6 +465,52 @@
 
             Promise.all([pageLoaded, fontsReady]).then(hideLoader, hideLoader);
             setTimeout(hideLoader, MAX_WAIT);
+        })();
+
+        // Theme picker
+        (function () {
+            const THEMES = [
+                { id: 'default',  name: 'Ocean Blue', bg: '#ebf0f7', accent: '#2196f3', meta: '#ebf0f7' },
+                { id: 'rose',     name: 'Rose',       bg: '#fbeef1', accent: '#f06292', meta: '#fbeef1' },
+                { id: 'mint',     name: 'Mint',       bg: '#e9f5ef', accent: '#34c28a', meta: '#e9f5ef' },
+                { id: 'lavender', name: 'Lavender',   bg: '#efeafa', accent: '#9575e8', meta: '#efeafa' },
+                { id: 'peach',    name: 'Peach',      bg: '#fdf0e6', accent: '#ff9a5a', meta: '#fdf0e6' },
+                { id: 'sand',     name: 'Sand',       bg: '#f3eee4', accent: '#c9a24f', meta: '#f3eee4' },
+                { id: 'dark',     name: 'Black',      bg: '#0e1014', accent: '#2196f3', meta: '#0e1014' }
+            ];
+            const root = document.documentElement;
+            const panel = document.getElementById('themePanel');
+            const btn = document.getElementById('themeBtn');
+            const metaTag = document.querySelector('meta[name="theme-color"]');
+
+            function apply(id, save) {
+                const t = THEMES.find(x => x.id === id) || THEMES[0];
+                if (t.id === 'default') root.removeAttribute('data-theme');
+                else root.setAttribute('data-theme', t.id);
+                if (metaTag) metaTag.setAttribute('content', t.meta);
+                panel.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.id === t.id));
+                if (save) { try { localStorage.setItem('calcTheme', t.id); } catch (e) {} }
+            }
+
+            THEMES.forEach(t => {
+                const b = document.createElement('button');
+                b.className = 'swatch';
+                b.dataset.id = t.id;
+                b.setAttribute('aria-label', t.name);
+                b.title = t.name;
+                b.style.background = `linear-gradient(135deg, ${t.bg} 50%, ${t.accent} 50%)`;
+                b.addEventListener('click', () => { apply(t.id, true); panel.classList.remove('open'); });
+                panel.appendChild(b);
+            });
+
+            btn.addEventListener('click', e => { e.stopPropagation(); panel.classList.toggle('open'); });
+            document.addEventListener('pointerdown', e => {
+                if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.remove('open');
+            });
+
+            let saved = null;
+            try { saved = localStorage.getItem('calcTheme'); } catch (e) {}
+            apply(saved || 'default', false);
         })();
 
         // State variables for auto-calculation
