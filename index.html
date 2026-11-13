@@ -1,13 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="sand">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f3eee4">
     <title>Fast Auto-Calc Professional</title>
-    <script>
-        var t = 'sand'; try { t = localStorage.getItem('calcTheme') || 'sand'; } catch (e) {} if (t !== 'sand' && t !== 'dark') t = 'sand'; document.documentElement.setAttribute('data-theme', t);
-    </script>
     <style>
         :root {
             /* Premium Soft Flutter / Material You Theme */
@@ -62,18 +59,6 @@
             --sh-rgb: 90, 70, 30; --op-rgb: 138, 106, 44; --clr-rgb: 77, 122, 99; --eq-rgb: 140, 106, 31;
             --spin-track: #e8e1d2; --spin-arc: #c4b79c;
         }
-        /* 6. Black (dark mode) */
-        [data-theme="dark"] {
-            --bg-color: #0e1014; --text-main: #eceff4; --text-muted: #8b93a3;
-            --btn-num-bg: #1c1f26; --btn-num-hover: #262a33; --btn-num-text: #eceff4;
-            --btn-op-bg: #222b3a; --btn-op-hover: #2c3649; --btn-op-text: #6cb4ff;
-            --btn-op-alt: #1e2634; --btn-op-alt-hover: #29334a;
-            --btn-eq-bg: linear-gradient(145deg, #2196f3 0%, #1565c0 100%);
-            --btn-eq-hover: linear-gradient(145deg, #1e88e5 0%, #0d5bb5 100%);
-            --btn-clear-bg: #1d2e2b; --btn-clear-hover: #25403b; --btn-clear-text: #4fd1b8;
-            --sh-rgb: 0, 0, 0; --op-rgb: 0, 0, 0; --clr-rgb: 0, 0, 0; --eq-rgb: 33, 150, 243;
-            --spin-track: #1f232b; --spin-arc: #4a5262;
-        }
 
 
         * {
@@ -98,53 +83,12 @@
             flex-direction: column;
         }
 
-        /* Theme picker */
-        .theme-btn {
-            position: absolute;
-            top: calc(14px + env(safe-area-inset-top));
-            right: 16px;
-            width: 44px; height: 44px;
-            border: none; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            background: var(--btn-op-bg);
-            color: var(--btn-op-text);
-            box-shadow: var(--shadow-soft);
-            cursor: pointer;
-            z-index: 5;
-            transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, color 0.3s ease;
-        }
-        .theme-btn:active { transform: scale(0.92); transition-duration: 0.05s; }
-        .theme-panel {
-            position: absolute;
-            top: calc(66px + env(safe-area-inset-top));
-            right: 16px;
-            max-width: calc(100vw - 32px);
-            display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
-            padding: 14px 16px;
-            background: var(--btn-num-bg);
-            border-radius: 28px;
-            box-shadow: 0 4px 24px rgba(var(--sh-rgb), 0.22), 0 1px 3px rgba(var(--sh-rgb), 0.18);
-            z-index: 6;
-            opacity: 0; visibility: hidden;
-            transform: translateY(-8px) scale(0.96);
-            transform-origin: top right;
-            transition: opacity 0.2s ease, transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), visibility 0.2s, background-color 0.3s ease;
-        }
-        .theme-panel.open { opacity: 1; visibility: visible; transform: none; }
-        .swatch {
-            width: 38px; height: 38px;
-            border: none; border-radius: 50%;
-            cursor: pointer;
-            box-shadow: inset 0 0 0 1.5px rgba(128, 128, 128, 0.28);
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .swatch:active { transform: scale(0.88); }
-        .swatch.active { box-shadow: 0 0 0 3px var(--btn-num-bg), 0 0 0 5px var(--btn-op-text); }
-
         /* Display Area - soft elevated card */
         .display-area {
             position: relative;
-            flex: 1;
+            flex: 1 1 0;
+            min-height: 0;          /* lets the area stay its size instead of growing with the text */
+            overflow: hidden;       /* long expressions are clipped at the top, keypad never moves */
             background: var(--display-bg);
             display: flex;
             flex-direction: column;
@@ -153,6 +97,9 @@
             padding: 30px 28px 28px;
             padding-top: calc(30px + env(safe-area-inset-top));
             width: 100%;
+            /* soft fade where old text disappears at the top */
+            -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 36px);
+            mask-image: linear-gradient(to bottom, transparent 0, #000 36px);
         }
 
         /* Expression (top) and result (bottom) swap roles, like Google Calculator:
@@ -166,6 +113,7 @@
             line-height: 1.1;
             letter-spacing: 0;
             white-space: nowrap;
+            flex-shrink: 0;
             transform-origin: right top;
             /* Only colour is transitioned here. The size change after "=" is a
                transform animation (see playMorph) which runs on the GPU. */
@@ -206,6 +154,7 @@
             gap: 14px;
             padding: 22px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
             width: 100%;
+            flex-shrink: 0;
         }
 
         .btn {
@@ -354,10 +303,6 @@
     </div>
 
     <div class="display-area" id="displayArea">
-        <button class="theme-btn" id="themeBtn" aria-label="Change theme">
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.8-.8 1.8-1.7 0-.5-.2-.8-.5-1.2-.3-.4-.5-.7-.5-1.2 0-.9.8-1.7 1.7-1.7H16a5 5 0 0 0 5-5c0-3.9-4-7.2-9-7.2z"/><circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="10.5" cy="7" r="1" fill="currentColor"/><circle cx="15" cy="7.5" r="1" fill="currentColor"/></svg>
-        </button>
-        <div class="theme-panel" id="themePanel" role="listbox" aria-label="Themes"></div>
         <div class="expr" id="expr">0</div>
         <div class="result" id="result"></div>
     </div>
@@ -420,46 +365,6 @@
             setTimeout(hideLoader, MAX_WAIT);
         })();
 
-        // Theme picker
-        (function () {
-            const THEMES = [
-                { id: 'sand',     name: 'Sand',       bg: '#f3eee4', accent: '#c9a24f', meta: '#f3eee4' },
-                { id: 'dark',     name: 'Black',      bg: '#0e1014', accent: '#2196f3', meta: '#0e1014' }
-            ];
-            const root = document.documentElement;
-            const panel = document.getElementById('themePanel');
-            const btn = document.getElementById('themeBtn');
-            const metaTag = document.querySelector('meta[name="theme-color"]');
-
-            function apply(id, save) {
-                const t = THEMES.find(x => x.id === id) || THEMES.find(x => x.id === 'sand');
-                root.setAttribute('data-theme', t.id);
-                if (metaTag) metaTag.setAttribute('content', t.meta);
-                panel.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.id === t.id));
-                if (save) { try { localStorage.setItem('calcTheme', t.id); } catch (e) {} }
-            }
-
-            THEMES.forEach(t => {
-                const b = document.createElement('button');
-                b.className = 'swatch';
-                b.dataset.id = t.id;
-                b.setAttribute('aria-label', t.name);
-                b.title = t.name;
-                b.style.background = `linear-gradient(135deg, ${t.bg} 50%, ${t.accent} 50%)`;
-                b.addEventListener('click', () => { apply(t.id, true); panel.classList.remove('open'); });
-                panel.appendChild(b);
-            });
-
-            btn.addEventListener('click', e => { e.stopPropagation(); panel.classList.toggle('open'); });
-            document.addEventListener('pointerdown', e => {
-                if (!panel.contains(e.target) && !btn.contains(e.target)) panel.classList.remove('open');
-            });
-
-            let saved = null;
-            try { saved = localStorage.getItem('calcTheme'); } catch (e) {}
-            apply(saved || 'sand', false);
-        })();
-
         // State variables for auto-calculation
         let num1 = '0';
         let operator = null;
@@ -469,6 +374,8 @@
         let num2Raw = '';    // what the person typed before pressing %
 
         let lastExpr = '';   // the expression shown (small) above the result after pressing =
+        let histExpr = '';   // everything typed before the current operator, e.g. 20+20 (kept while chaining)
+        let history = [];    // snapshots so Delete can step back through chained operations
 
         const displayArea = document.getElementById('displayArea');
         const exprEl = document.getElementById('expr');
@@ -478,10 +385,13 @@
         // Text is measured with a canvas (no layout work) so long numbers can shrink to fit
         const measureCtx = document.createElement('canvas').getContext('2d');
         let availWidth = 0;   // width of the display lines, cached (re-read only on resize)
+        let availHeight = 0;  // height of the display area's content box, cached the same way
 
         function refreshMetrics() {
             measureCtx.font = '400 100px ' + getComputedStyle(exprEl).fontFamily;
             availWidth = exprEl.clientWidth;
+            const cs = getComputedStyle(displayArea);
+            availHeight = displayArea.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
         }
 
         // Operator symbols as Unicode escapes (safe in any file encoding)
@@ -534,12 +444,53 @@
             el.style.fontSize = Math.max(size, minPx).toFixed(1) + 'px';
         }
 
+        // The expression line. It keeps its full size and simply wraps onto more rows.
+        // Only once the rows would fill the whole display area does the text start to
+        // shrink (down to minPx); after that, the oldest rows slide out at the top.
+        // belowPx = font size of the result line underneath, which needs its own room.
+        function fitExpr(el, text, maxPx, minPx, belowPx) {
+            if (el.textContent !== text) el.textContent = text;
+            const len = Math.max(text.length, 1);
+            const w100 = measureCtx.measureText(text || '0').width;
+            const maxH = availHeight - belowPx * 1.2 - 6;   // room left for this line (6px = its margin)
+            const usable = availWidth * 0.97;
+            const known = availWidth > 0 && availHeight > 0;
+
+            // Rows the text needs at a given size (text breaks anywhere, like the wrap rule in the CSS)
+            const rowsAt = s => {
+                if (!known) return 1;
+                const full = w100 * s / 100;
+                if (full <= usable) return 1;
+                const perRow = Math.max(1, Math.floor(usable / (full / len)));
+                return Math.ceil(len / perRow);
+            };
+
+            let size = maxPx;
+            if (known) while (size > minPx && rowsAt(size) * size * 1.1 > maxH) size -= 0.5;
+            size = Math.max(size, minPx);
+
+            const rows = rowsAt(size);
+            el.classList.toggle('wrap', rows > 1);
+            el.style.fontSize = size.toFixed(1) + 'px';
+
+            // Safety net: for wrapped text, double-check with the real layout
+            if (known && rows > 1) {
+                let guard = 0;
+                while (size > minPx && el.offsetHeight > maxH + 1 && guard++ < 30) {
+                    size = Math.max(minPx, size - 1);
+                    el.style.fontSize = size.toFixed(1) + 'px';
+                }
+            }
+        }
+
         // The full expression as the person typed it, e.g. 10,000+500
         function buildExpression() {
             if (operator === null) return formatNumber(num1);
             const opSymbol = OP_SYMBOLS[operator] || '+';
-            if (num2 === '') return formatNumber(num1) + opSymbol;
-            return formatNumber(num1) + opSymbol + (num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2));
+            // While chaining (20+20+...), show the whole typed history instead of only the running total
+            const left = histExpr !== '' ? histExpr : formatNumber(num1);
+            if (num2 === '') return left + opSymbol;
+            return left + opSymbol + (num2Pct ? formatNumber(num2Raw) + '%' : formatNumber(num2));
         }
 
         // Redraws are batched to once per frame, so fast tapping never piles up layout work
@@ -569,14 +520,14 @@
 
             if (done) {
                 // After "=": small expression on top, BIG result below
-                fitText(exprEl, lastExpr, small, 16);
+                fitExpr(exprEl, lastExpr, small, 16, big);
                 fitText(resultEl, formatNumber(num1), big, 28);
             } else {
                 // While typing: BIG expression on top, small live result below
                 const live = (operator && num2 !== '')
                     ? formatNumber(calculate(num1, operator, num2).toString())
                     : '';
-                fitText(exprEl, buildExpression(), big, 32);
+                fitExpr(exprEl, buildExpression(), big, 22, small);
                 fitText(resultEl, live, small, 16);
             }
 
@@ -702,8 +653,12 @@
             if (num1 === 'Error') handleClear();
 
             if (operator !== null && num2 !== '') {
-                // Instantly commit the previous equation as the new base number
+                // Commit the previous step, but remember everything typed so far (20+20 -> keeps "20+20")
+                history.push({ num1, operator, num2, num2Pct, num2Raw, histExpr });
+                const typed = buildExpression();
                 num1 = calculate(num1, operator, num2).toString();
+                histExpr = (num1 === 'Error') ? '' : typed;
+                if (num1 === 'Error') history = [];
             }
             operator = op;
             num2Pct = false;
@@ -718,6 +673,8 @@
             num1 = calculate(num1, operator, num2).toString();
             operator = null;
             num2 = '';
+            histExpr = '';
+            history = [];
             isFinished = true;
             num2Pct = false;
             updateDisplay();   // the two lines morph into their "after =" look (see playMorph)
@@ -728,6 +685,8 @@
             num1 = '0';
             operator = null;
             num2 = '';
+            histExpr = '';
+            history = [];
             isFinished = false;
             updateDisplay();
         }
@@ -765,7 +724,14 @@
                 num1 = num1.slice(0, -1);
                 if (num1 === '' || num1 === '-') num1 = '0';
             } else if (num2 === '') {
-                operator = null; // Removing operator
+                if (history.length) {
+                    // Step back: 20+20+ -> 20+20 (back to editing the last number)
+                    const prev = history.pop();
+                    num1 = prev.num1; operator = prev.operator; num2 = prev.num2;
+                    num2Pct = prev.num2Pct; num2Raw = prev.num2Raw; histExpr = prev.histExpr;
+                } else {
+                    operator = null; // Removing operator
+                }
             } else {
                 if (num2Pct) { num2 = num2Raw; num2Pct = false; } // first delete only removes the %
                 else num2 = num2.slice(0, -1);
