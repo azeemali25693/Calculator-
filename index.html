@@ -152,9 +152,21 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 14px;
-            padding: 22px 20px calc(24px + env(safe-area-inset-bottom)) 20px;
+            padding: 22px 20px 24px 20px;
+            padding-bottom: calc(24px + env(safe-area-inset-bottom));
             width: 100%;
             flex-shrink: 0;
+            /* Row height = column width, so every key is a perfect circle.
+               Done with calc() instead of aspect-ratio, because older Android
+               WebViews ignore aspect-ratio and the keys turn into flat ovals. */
+            grid-auto-rows: calc((100vw - 40px - 42px) / 4);
+        }
+
+        /* Landscape: base the key size on the screen height instead */
+        @media (orientation: landscape) {
+            .keypad {
+                grid-auto-rows: calc((62vh - 102px) / 5);
+            }
         }
 
         .btn {
@@ -171,7 +183,9 @@
             appearance: none;
             -webkit-appearance: none;
             transition: transform 0.26s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s ease, color 0.3s ease;
-            aspect-ratio: 1 / 1;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
             background-color: var(--btn-num-bg);
             color: var(--btn-num-text);
             box-shadow: var(--shadow-soft);
@@ -253,7 +267,7 @@
         /* Loading Spinner - light gray, bold, bigger */
         .loader {
             position: fixed;
-            inset: 0;
+            top: 0; right: 0; bottom: 0; left: 0;
             z-index: 9999;
             display: flex;
             justify-content: center;
@@ -326,7 +340,7 @@
         <button class="btn" data-action="num" data-val="1">1</button>
         <button class="btn" data-action="num" data-val="2">2</button>
         <button class="btn" data-action="num" data-val="3">3</button>
-        <button class="btn equal" data-action="eq" style="grid-row: span 2; aspect-ratio: auto;">=</button>
+        <button class="btn equal" data-action="eq" style="grid-row: span 2;">=</button>
 
         <button class="btn zero" data-action="num" data-val="0">0</button>
         <button class="btn" data-action="num" data-val=".">.</button>
