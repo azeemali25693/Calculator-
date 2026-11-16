@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f3eee4">
-    <title>Calculator</title>
+    <title>Fast Auto-Calc Professional</title>
     <style>
         :root {
             /* Premium Soft Flutter / Material You Theme */
@@ -66,7 +66,7 @@
             margin: 0;
             padding: 0;
             font-family: Roboto, "Google Sans", "Product Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
-            -webkit-tap-highlight-color: transparent;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
             user-select: none;
             -webkit-user-select: none;
             touch-action: manipulation;
@@ -196,8 +196,10 @@
         .btn:focus,
         .btn:focus-visible,
         .btn:active {
-            outline: none;
-            -webkit-tap-highlight-color: transparent;
+            outline: 0 none transparent !important;
+            outline-style: none !important;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0) !important;
+            -webkit-touch-callout: none;
         }
         .btn::-moz-focus-inner { border: 0; }
 
@@ -785,6 +787,9 @@
         // Extremely fast Pointer Down events for High Hz responsiveness
         document.querySelectorAll('.btn').forEach((btn, i) => {
             btn.style.setProperty('--i', i);
+            btn.setAttribute('tabindex', '-1');
+            btn.addEventListener('focus', () => btn.blur());
+            btn.addEventListener('mousedown', e => e.preventDefault());
             btn.addEventListener('pointerdown', (e) => {
                 const action = btn.getAttribute('data-action');
                 const val = btn.getAttribute('data-val');
