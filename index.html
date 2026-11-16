@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#f3eee4">
-    <title>Fast Auto-Calc Professional</title>
+    <title>Calculator</title>
     <style>
         :root {
             /* Premium Soft Flutter / Material You Theme */
@@ -190,6 +190,16 @@
             color: var(--btn-num-text);
             box-shadow: var(--shadow-soft);
         }
+
+        /* Old WebViews draw a yellow/orange focus box around a tapped button and keep it there */
+        .btn,
+        .btn:focus,
+        .btn:focus-visible,
+        .btn:active {
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn::-moz-focus-inner { border: 0; }
 
         .btn:active {
             transform: scale(0.94);
